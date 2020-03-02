@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_todo_app/todoItems.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,7 +20,7 @@ class MyAppState extends State<MyApp> {
         brightness: isDarkModeEnabled ? Brightness.dark : Brightness.light
       ),
       debugShowCheckedModeBanner: false,
-      home: MyTodoApp(),
+      home: SafeArea(child: MyTodoApp()),
     );
   }
 
@@ -38,7 +39,8 @@ class MyTodoApp extends StatefulWidget {
 
 class _MyTodoAppState extends State<MyTodoApp> {
   
-  List<String> todos = [];
+  //List<String> todos = [];
+  List<TodoItems> todos =  [];
   TextEditingController inputController = TextEditingController();
   bool iconButtonVisible = false;
   bool isDarkModeEnable = false;
@@ -154,14 +156,22 @@ class _MyTodoAppState extends State<MyTodoApp> {
                child: ListTile(
                  onTap: (){
                    setState(() {
-                    _showDialog(todos[index]);
+                    _showDialog(todos[index].description);
                    });
                  },
                     key: ValueKey(index),
-                    leading: Text('$index'),
-                    title: Text(
-                      todos[index],
+                    leading: Checkbox(
+                      value: todos[index].isCompleted,
+                      onChanged: (value){
+                        setState(() {
+                          _updateTodoStatus(index, value);
+                        });
+                      },
                     ),
+                    title: Text(
+                      todos[index].description,
+                    ),
+                    subtitle: Text(todos[index].date),
                   ),
                ),
            ); 
@@ -174,6 +184,22 @@ class _MyTodoAppState extends State<MyTodoApp> {
       ),
     );
   }
+
+  void _updateTodoStatus(index, value) {
+    /*
+    trying to filter out todos completed to bottom of the list.
+     */
+    todos[index].isCompleted = value;
+    // if (value) {
+    //   var item = todos[index];
+    //   item.isCompleted = value;
+    //   todos.removeAt(index);
+    //   todos.add(item);
+    // } else {
+    //   todos[index].isCompleted = value;
+    // }
+  }
+
 
   void _showDialog(textString) {
     // flutter defined function
@@ -210,9 +236,10 @@ class _MyTodoAppState extends State<MyTodoApp> {
 
   void _addTodoItem(item) {
     if (inputController.text.isNotEmpty) {
-      todos.add(item);
+      
+      var todo = TodoItems(false, item);
+      todos.add(todo);
       inputController.clear();
-
     }
   }
 
